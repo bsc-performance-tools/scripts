@@ -17,35 +17,21 @@
 #
 #Author: Damien Dosimont <damien[dot]dosimont[at]bsc.es
 
-FILOSSDIR=filoss
-rm -fr $FILOSSDIR
-mkdir -p $FILOSSDIR
-for i in 1 2
-  do
-  clusterdir=$FILOSSDIR/Cluster_$i
-  mkdir -p $clusterdir
-  for dir in *clustered*
-    do
-    if [ -d "$dir" ]
-      then
-      cp $dir/*codeblocks.fused.any.any.any.dump.csv $clusterdir/${dir}.csv
-    fi
-    done
-  cd $clusterdir
-  for csv in *.csv
-  do
-    filtered=${csv%.csv}.filtered.csv
-    choped=${csv%.csv}.choped.csv
-    grep "cl;Cluster_$i;0;" $csv > $filtered
-    rm $csv
-    cat $filtered | awk -F";" '{print $4 ";" $5 ";" $6}' > $choped
-    rm $filtered
-  done
-  reference=`ls *_1_0.0.choped.csv`
-  #for file in *choped.csv
-  #do
-    #diff $reference $file > diff_${file%.csv}
-  #done
-  cd ../..
+P1=2
+P2=0.0
+
+reference=`ls *_${P1}_${P2}.choped.csv`
+mkdir -p stats
+rm stats/*
+echo "The model used as reference is: CSAMPLES=$P1 MINPER=$P2" > stats/reference
+echo "#CSAMPLES, MINPER, DIFFNUMBER" > stats/data.csv
+for file in *.csv
+do
+  temp=`basename $file .choped.csv`
+  x=`echo $temp | awk -F_ '{print $2}'`
+  y=`echo $temp | awk -F_ '{print $3}'`
+  diff $reference $file > stats/${x}_${y}
+  z=`wc -l stats/${x}_${y} | cut -f1 -d' '`
+  echo "$x, $y, $z" >> stats/data.csv
 done
   
