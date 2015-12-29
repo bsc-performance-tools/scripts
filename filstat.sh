@@ -17,21 +17,22 @@
 #
 #Author: Damien Dosimont <damien[dot]dosimont[at]bsc.es
 
-P1=2
-P2=0.0
+REF_CSAMPLES=2
+REF_MINPER=0.0
 
-reference=`ls *_${P1}_${P2}.choped.csv`
+reference=`ls *_${REF_CSAMPLES}_${REF_MINPER}.choped.csv`
+reflinenumber=`wc -l $reference | cut -f1 -d' '`
 mkdir -p stats
 rm stats/*
-echo "The model used as reference is: CSAMPLES=$P1 MINPER=$P2" > stats/reference
-echo "#CSAMPLES, MINPER, DIFFNUMBER" > stats/data.csv
+echo "The model used as reference is: CSAMPLES=$REF_CSAMPLES MINPER=$REF_MINPER" > stats/reference
+echo "#CSAMPLES, MINPER, DIFFNUMBER, DIFFPER" > stats/data.csv
 for file in *.csv
 do
   temp=`basename $file .choped.csv`
-  x=`echo $temp | awk -F_ '{print $2}'`
-  y=`echo $temp | awk -F_ '{print $3}'`
-  diff $reference $file > stats/${x}_${y}
-  z=`wc -l stats/${x}_${y} | cut -f1 -d' '`
-  echo "$x, $y, $z" >> stats/data.csv
+  csamples=`echo $temp | awk -F_ '{print $2}'`
+  minper=`echo $temp | awk -F_ '{print $3}'`
+  diffnumber=`diff $reference $file | grep "<" | wc -l | cut -f1 -d' '`
+  diffper=`bc<<<"scale=2;100.0*$diffnumber/$reflinenumber"`
+  echo "$csamples,$minper,$diffnumber,$diffper" >> stats/data.csv
 done
   
