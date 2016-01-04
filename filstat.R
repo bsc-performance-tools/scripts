@@ -9,8 +9,8 @@ cheader <- c("CSAMPLES", "MINPER", "DIFFNUMBER", "DIFFPER")
 
 
 
-h <- 4
-w <- 8
+h <- 9
+w <- 16
 
 readData <- function(file) {
   df <- read.csv(file, header=TRUE, sep = ",", strip.white=TRUE)
@@ -39,8 +39,10 @@ plot<-plot + labs(x=xlabel,y=ylabel,legend=legend)
 plot<-plot + scale_color_discrete(name="Function minimal duration (%)",
 breaks=charminper,
 labels=charminper)
+vtemp<-1:length(charminper)
+#vtemp<-as.character(vtemp)
 plot<-plot+ scale_shape_manual(name="Function minimal duration (%)",
-values=c(0,1,2,3,4,5,6,7,8),
+values=vtemp,
 breaks=charminper,
 labels=charminper)
 plot
@@ -67,8 +69,10 @@ plot<-plot + labs(x=xlabel,y=ylabel,legend=legend)
 plot<-plot + scale_color_discrete(name="Consecutive samples",
 breaks=charcsamples,
 labels=charcsamples)
+vtemp=1:length(charcsamples)
+#vtemp<-as.character(vtemp)
 plot<-plot+ scale_shape_manual(name="Consecutive samples",
-values=c(0,1,2,3,4,5,6,7,8),
+values=vtemp,
 breaks=charcsamples,
 labels=charcsamples)
 plot
