@@ -3,9 +3,15 @@ library(gtools)
 Sys.setlocale("LC_MESSAGES", 'french')
 
 input <- "data.csv"
-output1 <- "difference_xcsamples.pdf"
+output1_1 <- "difference_xcsamples.pdf"
+output1_2 <- "difference_xcsamples_filered.pdf"
 output2 <- "difference_xminper.pdf"
 cheader <- c("CSAMPLES", "MINPER", "DIFFNUMBER", "DIFFPER")
+
+legendcs <- "Consecutive samples"
+legendmp <- "Function minimal duration"
+legendy <- "Difference with the reference model (%)"
+legendxy<- "Difference with the reference model as a function of consecutive sample and function minimal duration percentage"
 
 
 
@@ -18,7 +24,7 @@ readData <- function(file) {
   df
 }
 
-printPlot1 <- function(data, string){
+printPlot1_1 <- function(data, string){
 dtemp<-data
 dtemp<-dtemp[(dtemp$CSAMPLES > 1),]
 dtemp$CHARMINPER<-as.character(dtemp$MINPER)
@@ -27,21 +33,52 @@ charcsamples <- dtemp$CHARCSAMPLES
 charcsamples <- mixedsort(charcsamples)
 charminper <- dtemp$CHARMINPER
 charminper <- mixedsort(charminper)
-xlabel<- "Consecutive samples"
-ylabel<- "Difference with the reference model (%)"
-legend<- "Difference with the reference model as a function of consecutive sample and function minimal duration percentage"
+xlabel<- legendcs
+ylabel<- legendy
+legend<- legendxy
 plot<-ggplot(dtemp, aes(x=CSAMPLES, y=DIFFPER, color=CHARMINPER, 
 shape=CHARMINPER))
 plot<-plot + geom_point()
 plot<-plot + geom_line()
 plot<-plot + theme_bw()
+legendscale<-legendmp
 plot<-plot + labs(x=xlabel,y=ylabel,legend=legend)
-plot<-plot + scale_color_discrete(name="Function minimal duration (%)",
+plot<-plot + scale_color_discrete(name=legendscale,
 breaks=charminper,
 labels=charminper)
 vtemp<-1:length(charminper)
-#vtemp<-as.character(vtemp)
-plot<-plot+ scale_shape_manual(name="Function minimal duration (%)",
+plot<-plot+ scale_shape_manual(name=legendscale,
+values=vtemp,
+breaks=charminper,
+labels=charminper)
+plot
+}
+
+printPlot1_2 <- function(data, string){
+dtemp<-data
+dtemp<-dtemp[(dtemp$CSAMPLES > 1),]
+dtemp<-dtemp[(dtemp$MINPER < 1),]
+dtemp$CHARMINPER<-as.character(dtemp$MINPER)
+dtemp$CHARCSAMPLES<-as.character(dtemp$CSAMPLES)
+charcsamples <- dtemp$CHARCSAMPLES
+charcsamples <- mixedsort(charcsamples)
+charminper <- dtemp$CHARMINPER
+charminper <- mixedsort(charminper)
+xlabel<- legendcs
+ylabel<- legendy
+legend<- legendxy
+plot<-ggplot(dtemp, aes(x=CSAMPLES, y=DIFFPER, color=CHARMINPER, 
+shape=CHARMINPER))
+plot<-plot + geom_point()
+plot<-plot + geom_line()
+plot<-plot + theme_bw()
+legendscale<-legendmp
+plot<-plot + labs(x=xlabel,y=ylabel,legend=legend)
+plot<-plot + scale_color_discrete(name=legendscale,
+breaks=charminper,
+labels=charminper)
+vtemp<-1:length(charminper)
+plot<-plot+ scale_shape_manual(name=legendscale,
 values=vtemp,
 breaks=charminper,
 labels=charminper)
@@ -57,21 +94,21 @@ charcsamples <- dtemp$CHARCSAMPLES
 charcsamples <- mixedsort(charcsamples)
 charminper <- dtemp$CHARMINPER
 charminper <- mixedsort(charminper)
-xlabel<- "Function minimal duration (%)"
-ylabel<- "Difference with the reference model (%)"
-legend<- "Difference with the reference model as a function of consecutive sample and function minimal duration percentage"
+xlabel<- legendmp
+ylabel<- legendy
+legend<- legendxy
 plot<-ggplot(dtemp, aes(x=MINPER, y=DIFFPER, color=CHARCSAMPLES, 
 shape=CHARCSAMPLES))
 plot<-plot + geom_point()
 plot<-plot + geom_line()
 plot<-plot + theme_bw()
+legendscale<-legendcs
 plot<-plot + labs(x=xlabel,y=ylabel,legend=legend)
-plot<-plot + scale_color_discrete(name="Consecutive samples",
+plot<-plot + scale_color_discrete(name=legendscale,
 breaks=charcsamples,
 labels=charcsamples)
 vtemp=1:length(charcsamples)
-#vtemp<-as.character(vtemp)
-plot<-plot+ scale_shape_manual(name="Consecutive samples",
+plot<-plot+ scale_shape_manual(name=legendscale,
 values=vtemp,
 breaks=charcsamples,
 labels=charcsamples)
@@ -79,6 +116,7 @@ plot
 }
 
 data <- readData(input)
-ggsave(output1, plot = printPlot1(data), width = w, height = h)
+ggsave(output1_1, plot = printPlot1_1(data), width = w, height = h)
+ggsave(output1_2, plot = printPlot1_2(data), width = w, height = h)
 ggsave(output2, plot = printPlot2(data), width = w, height = h)
 
