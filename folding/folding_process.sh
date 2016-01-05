@@ -21,18 +21,19 @@ REF_CSAMPLES=2
 REF_MINPER=0.0
 
 functnumber_fct(){
-  tnum=0
-  told=0
+  num=0
+  old=0
+  cat $1 | awk -F";" '{print $3}' > temp
   while IFS='' read -r line || [[ -n "$line" ]]
   do
-    temp=`echo $line | awk -F";" '{print $3}'`
-    if [ $told -ne $temp ]
+    if [ $old -ne $line ]
     then
-      tnum=$((tnum + 1))
+      num=$((num + 1))
     fi
-    told=$temp
-  done < $1
-  return $tnum
+    old=$line
+  done < temp
+  rm temp
+  return $num
 }
 
 
@@ -44,6 +45,8 @@ mkdir -p stats
 rm stats/*
 echo "The model used as reference is: CSAMPLES=$REF_CSAMPLES MINPER=$REF_MINPER" > stats/reference
 echo "#CSAMPLES, MINPER, DIFFNUMBER, DIFFPER, FUNCTNUMBER, FUNCPER" > stats/data.csv
+filenumber=`ls -Al *.csv | wc -l`
+filei=0
 for file in *.csv
 do
   temp=`basename $file .choped.csv`
@@ -55,5 +58,8 @@ do
   functnumber=$?
   funcper=`bc<<<"scale=2;100.0*$functnumber/$reffunctnumber"`
   echo "$csamples,$minper,$diffnumber,$diffper,$functnumber,$funcper" >> stats/data.csv
+  filei=$((filei + 1))
+  doneper=$((100 * filei / filenumber))
+  echo -en "Processing: $doneper %\r"
 done
   

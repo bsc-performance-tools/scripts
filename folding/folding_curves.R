@@ -16,7 +16,7 @@ cheader <- c("CSAMPLES", "MINPER", "DIFFNUMBER", "DIFFPER", "FUNCTNUMBER", "FUNC
 legendcs <- "Consecutive samples"
 legendmp <- "Function minimal duration"
 legendy1 <- "Difference with the reference model (%)"
-legendy2 <- "Function number relative to the reference model (%)"
+legendy2 <- "Function number"
 legendy3 <- "Score"
 legendxy1 <- "Difference with the reference model as a function of consecutive sample and function minimal duration percentage"
 legendxy2 <- "Function number relative to the reference model as a function of consecutive sample and function minimal duration percentage"
@@ -167,7 +167,7 @@ charminper <- mixedsort(charminper)
 xlabel<- legendcs
 ylabel<- legendy2
 legend<- legendxy2
-plot<-ggplot(dtemp, aes(x=CSAMPLES, y=FUNCTPER, color=CHARMINPER, 
+plot<-ggplot(dtemp, aes(x=CSAMPLES, y=FUNCTNUMBER, color=CHARMINPER, 
 shape=CHARMINPER))
 plot<-plot + geom_point()
 plot<-plot + geom_line()
@@ -197,7 +197,7 @@ charminper <- mixedsort(charminper)
 xlabel<- legendmp
 ylabel<- legendy2
 legend<- legendxy2
-plot<-ggplot(dtemp, aes(x=MINPER, y=FUNCTPER, color=CHARCSAMPLES, 
+plot<-ggplot(dtemp, aes(x=MINPER, y=FUNCTNUMBER, color=CHARCSAMPLES, 
 shape=CHARCSAMPLES))
 plot<-plot + geom_point()
 plot<-plot + geom_line()
