@@ -20,12 +20,30 @@
 REF_CSAMPLES=2
 REF_MINPER=0.0
 
+functnumber_fct(){
+  tnum=0
+  told=0
+  while IFS='' read -r line || [[ -n "$line" ]]
+  do
+    temp=`echo $line | awk -F";" '{print $3}'`
+    if [ $told -ne $temp ]
+    then
+      tnum=$((tnum + 1))
+    fi
+    told=$temp
+  done < $1
+  return $tnum
+}
+
+
 reference=`ls *_${REF_CSAMPLES}_${REF_MINPER}.choped.csv`
 reflinenumber=`wc -l $reference | cut -f1 -d' '`
+functnumber_fct $reference
+reffunctnumber=$?
 mkdir -p stats
 rm stats/*
 echo "The model used as reference is: CSAMPLES=$REF_CSAMPLES MINPER=$REF_MINPER" > stats/reference
-echo "#CSAMPLES, MINPER, DIFFNUMBER, DIFFPER" > stats/data.csv
+echo "#CSAMPLES, MINPER, DIFFNUMBER, DIFFPER, FUNCTNUMBER, FUNCPER" > stats/data.csv
 for file in *.csv
 do
   temp=`basename $file .choped.csv`
@@ -33,6 +51,9 @@ do
   minper=`echo $temp | awk -F_ '{print $3}'`
   diffnumber=`diff $reference $file | grep "<" | wc -l | cut -f1 -d' '`
   diffper=`bc<<<"scale=2;100.0*$diffnumber/$reflinenumber"`
-  echo "$csamples,$minper,$diffnumber,$diffper" >> stats/data.csv
+  functnumber_fct $file
+  functnumber=$?
+  funcper=`bc<<<"scale=2;100.0*$functnumber/$reffunctnumber"`
+  echo "$csamples,$minper,$diffnumber,$diffper,$functnumber,$funcper" >> stats/data.csv
 done
   

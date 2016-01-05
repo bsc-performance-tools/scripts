@@ -41,11 +41,6 @@ for i in 1 2
     cat $filtered | awk -F";" '{print $4 ";" $5 ";" $6}' > $choped
     rm $filtered
   done
-  #reference=`ls *_1_0.0.choped.csv`
-  #for file in *choped.csv
-  #do
-    #diff $reference $file > diff_${file%.csv}
-  #done
   cd ../..
 done
   
