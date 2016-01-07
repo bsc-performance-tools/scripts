@@ -9,7 +9,8 @@ output2 <- "difference_xminper.pdf"
 output3_1 <- "complexity_xcsamples.pdf"
 output3_2 <- "complexity_xcsamples_filered.pdf"
 output4 <- "complexity_xminper.pdf"
-output5 <- "score_xcsamples.pdf"
+output5_1 <- "difference_gradient.pdf"
+output5_2 <- "complexity_gradient.pdf"
 
 cheader <- c("CSAMPLES", "MINPER", "DIFFNUMBER", "DIFFPER", "FUNCTNUMBER", "FUNCTPER")
 
@@ -24,8 +25,8 @@ legendxy3 <- "Score as a function of consecutive sample and function minimal dur
 
 
 
-h <- 9
-w <- 16
+h <- 6
+w <- 12
 
 readData <- function(file) {
   df <- read.csv(file, header=TRUE, sep = ",", strip.white=TRUE)
@@ -215,7 +216,7 @@ labels=charcsamples)
 plot
 }
 
-printPlot5 <- function(data, string){
+printPlot5_1 <- function(data, string){
 dtemp<-data
 dtemp<-dtemp[(dtemp$CSAMPLES > 1),]
 dtemp$CHARMINPER<-as.character(dtemp$MINPER)
@@ -225,24 +226,41 @@ charcsamples <- dtemp$CHARCSAMPLES
 charcsamples <- mixedsort(charcsamples)
 charminper <- dtemp$CHARMINPER
 charminper <- mixedsort(charminper)
-xlabel<- legendcs
-ylabel<- legendy3
+xlabel<- legendmp
+ylabel<- legendcs
 legend<- legendxy3
-plot<-ggplot(dtemp, aes(x=CSAMPLES, y=SCORE, color=CHARMINPER, 
-shape=CHARMINPER))
+plot<-ggplot(dtemp, aes(x=MINPER, y=CSAMPLES, color=DIFFPER))
 plot<-plot + geom_point()
-plot<-plot + geom_line()
 plot<-plot + theme_bw()
+plot<-plot + scale_x_log10()
+plot<-plot + scale_y_log10()
+legendscale<-legendmp
+plot<-plot + labs(x=xlabel,y=ylabel)
+plot<-plot+scale_color_gradientn(name="Difference (%)",colours=rainbow(6))
+plot
+}
+
+printPlot5_2 <- function(data, string){
+dtemp<-data
+dtemp<-dtemp[(dtemp$CSAMPLES > 1),]
+dtemp$CHARMINPER<-as.character(dtemp$MINPER)
+dtemp$CHARCSAMPLES<-as.character(dtemp$CSAMPLES)
+dtemp$SCORE<-dtemp$DIFFPER/dtemp$FUNCTPER
+charcsamples <- dtemp$CHARCSAMPLES
+charcsamples <- mixedsort(charcsamples)
+charminper <- dtemp$CHARMINPER
+charminper <- mixedsort(charminper)
+xlabel<- legendmp
+ylabel<- legendcs
+legend<- legendxy3
+plot<-ggplot(dtemp, aes(x=MINPER, y=CSAMPLES, color=FUNCTNUMBER))
+plot<-plot + geom_point()
+plot<-plot + theme_bw()
+plot<-plot + scale_x_log10()
+plot<-plot + scale_y_log10()
 legendscale<-legendmp
 plot<-plot + labs(x=xlabel,y=ylabel,legend=legend)
-plot<-plot + scale_color_discrete(name=legendscale,
-breaks=charminper,
-labels=charminper)
-vtemp<-1:length(charminper)
-plot<-plot+ scale_shape_manual(name=legendscale,
-values=vtemp,
-breaks=charminper,
-labels=charminper)
+plot<-plot+scale_color_gradientn(name="Functions",colours=rainbow(6))
 plot
 }
 
@@ -257,7 +275,8 @@ plot2<- printPlot2(data)
 plot3_1<- printPlot3_1(data)
 plot3_2<- printPlot3_2(data)
 plot4<- printPlot4(data)
-plot5<- printPlot5(data)
+plot5_1<- printPlot5_1(data)
+plot5_2<- printPlot5_2(data)
 
 ggsave(output1_1, plot = plot1_1, width = w, height = h)
 ggsave(output1_2, plot = plot1_2, width = w, height = h)
@@ -265,4 +284,5 @@ ggsave(output2, plot = plot2, width = w, height = h)
 ggsave(output3_1, plot = plot3_1, width = w, height = h)
 ggsave(output3_2, plot = plot3_2, width = w, height = h)
 ggsave(output4, plot = plot4, width = w, height = h)
-ggsave(output5, plot = plot5, width = w, height = h)
+ggsave(output5_1, plot = plot5_1, width = w, height = h)
+ggsave(output5_2, plot = plot5_2, width = w, height = h)
