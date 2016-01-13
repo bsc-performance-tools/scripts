@@ -1,6 +1,8 @@
 #!/bin/bash
 
 #Copyright (c) 2015 Barcelona Supercomputing Center
+#Script to launch the tools of the BSC Performance Tools Team
+#and perform a complete analysis process.
 #
 #This is free software: you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -17,39 +19,9 @@
 #
 #Author: Damien Dosimont <damien[dot]dosimont[at]bsc.es
 
-DIR=pdata
-TRACES=ptraces
-if [[ -d $DIR ]]
-then
-  rm -fr $DIR
-fi
-mkdir -p $DIR
-filei=0
-for i in 1 2
-  do
-  clusterdir=$DIR/Cluster_$i
-  mkdir -p $clusterdir
-  for dir in $TRACES
-    do
-    if [ -d "$dir" ]
-      then
-      cp $dir/*codeblocks.fused.any.any.any.dump.csv $clusterdir/${dir}.dump
-    fi
-    done
-  cd $clusterdir
-  filenumber=`ls -Al *.csv | wc -l`
-  for csv in *dump
-  do
-    filtered=${csv%.dump}.filtered.csv
-    choped=${csv%.dump}.csv
-    grep "cl;Cluster_$i;0;" $csv > $filtered
-    rm $csv
-    cat $filtered | awk -F";" '{print $4 ";" $5 ";" $6}' > $choped
-    rm $filtered
-    filei=$((filei + 1))
-    doneper=$((100 * filei / filenumber / 2))
-    echo -en "Processing: $doneper %\r"
-  done
-  cd ../..
-done
-  
+export RSPATH=~/Git/github/bsc-performance-tools/scripts/folding_analysis
+
+fa_experiment.sh
+fa_extract.sh
+fa_process.sh
+fa_select.sh

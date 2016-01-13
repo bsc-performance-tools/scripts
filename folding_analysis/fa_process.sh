@@ -19,7 +19,8 @@
 
 REF_CSAMPLES=2
 REF_MINPER=0.0
-DIR=folding_analysis
+DIR=pdata
+OUTDIR=stats
 
 functnumber_fct(){
   num=0
@@ -37,23 +38,26 @@ functnumber_fct(){
   return $num
 }
 
+currentpath=`pwd`
+if [[ -d $OUTDIR ]]
+  then
+    rm -fr $OUTDIR
+  fi
+mkdir -p $OUTDIR
 cd $DIR
 filenumber=`ls -Al */*.csv | wc -l`
 filei=0
 for clusterdir in *
 do
   cd $clusterdir
-  reference=`ls *_${REF_CSAMPLES}_${REF_MINPER}.choped.csv`
+  outdir=$currentpath/$OUDIR/$clusterdir
+  mkdir -p $outdir
+  reference=`ls *_${REF_CSAMPLES}_${REF_MINPER}.csv`
   reflinenumber=`wc -l $reference | cut -f1 -d' '`
   functnumber_fct $reference
   reffunctnumber=$?
-  if [[ -d stats ]]
-  then
-    rm -fr stats
-  fi
-  mkdir -p stats
-  echo "The model used as reference is: CSAMPLES=$REF_CSAMPLES MINPER=$REF_MINPER" > stats/reference
-  echo "#CSAMPLES, MINPER, DIFFNUMBER, DIFFPER, FUNCTNUMBER, FUNCPER" > stats/data.csv
+  echo "The model used as reference is: CSAMPLES=$REF_CSAMPLES MINPER=$REF_MINPER" > $outdir/reference
+  echo "#CS, FMD, LOSS, LOSSPER, COMPLEX, COMPLEXPER" > $outdir/data.csv
   for file in *.csv
   do
     temp=`basename $file .choped.csv`
@@ -64,7 +68,7 @@ do
     functnumber_fct $file
     functnumber=$?
     funcper=`bc<<<"scale=2;100.0*$functnumber/$reffunctnumber"`
-    echo "$csamples,$minper,$diffnumber,$diffper,$functnumber,$funcper" >> stats/data.csv
+    echo "$csamples,$minper,$diffnumber,$diffper,$functnumber,$funcper" >> $outdir/data.csv
     filei=$((filei + 1))
     doneper=$((100 * filei / filenumber))
     echo -en "Processing: $doneper %\r"

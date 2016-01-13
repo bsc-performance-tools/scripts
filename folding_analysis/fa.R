@@ -326,29 +326,6 @@ plot<-plot + scale_y_log10()
 plot
 }
 
-ComputeBestRepresentations <- function(data, string){
-parameters<- seq (0,1,0.0001)
-ini<-rep(0,length(parameters))
-dres <- data.frame(p=parameters,pIC=ini,CS=ini,MDF=ini,LOSS=ini,COMPLEX=ini)
-for(i in 1:length(parameters)){
- dw<-data
- p<-parameters[i]
- dw$pIC<-((-p)*dw$DIFFPER)-((1-p)*dw$FUNCTPER)
- index<-which.max(dw$pIC)
- dres[i,"p"]<-p
- dres[i,"pIC"]<-dw[index,"pIC"]
- dres[i,"CS"]<-dw[index,"CSAMPLES"]
- dres[i,"MDF"]<-dw[index,"MINPER"]
- dres[i,"LOSS"]<-dw[index,"DIFFPER"]
- dres[i,"COMPLEX"]<-dw[index,"FUNCTNUMBER"]
-}
-dres<-dres[(! duplicated(dres[, "CS"])) | (! duplicated(dres[, "MDF"])), ]
-dres
-}
-
-
-
-
 colors<-brewer.pal(10, "Paired")
 
 data <- readData(input)
@@ -362,8 +339,6 @@ plot4<- printPlot4(data)
 plot5_1<- printPlot5_1(data)
 plot5_2<- printPlot5_2(data)
 plot6<- printPlot6(data)
-ComputeBestRepresentations(data)
-
 
 ggsave(output1_1, plot = plot1_1, width = w, height = h)
 ggsave(output1_2, plot = plot1_2, width = w, height = h)
