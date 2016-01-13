@@ -21,33 +21,38 @@
 
 
 export_fct(){
-  mv *.PAPI_TOT_INS.gnuplot PAPI_TOT_INS.gnuplot
-  sed -i "6i\set terminal png size 800,600\nset output "PAPI_TOT_INS_${1}_${2}.png"" PAPI_TOT_INS.gnuplot
-  gnuplot -p PAPI_TOT_INS.gnuplot
+  for plot in *.gnuplot
+  do
+  sed -i "6i\set terminal png size 800,600;\nset output \\\"${plot}.png\\\";" $plot
+  gnuplot -p $plot
+  done
 }
 
 clean_fct(){
   cd ${1}_${2}_${3}
-  rm *.prv *.pcf *.row *.control *.counters *.dataobjects *.extract *.objects *.regions *.row *.xwfolding *.bash
+  if [[ "$?" != "0" ]]
+  then
+    exit 1
+  fi
+  rm *.prv *.pcf *.row *.control *.counters *.dataobjects *.extract *.objects *.regions *.wxfolding *.bash
   rm *.PAPI_BR_MSP.gnuplot
   rm *.PAPI_FP_INS.gnuplot
   rm *.PAPI_L1_DCM.gnuplot
   rm *.PAPI_L2_DCM.gnuplot
-  rm *.PAPI_L3_DCM.gnuplot
+  rm *.PAPI_L3_TCM.gnuplot
   rm *.PAPI_TOT_CYC.gnuplot
   rm *.ratio_per_instruction.gnuplot
   rm *.groups.gnuplot
   export_fct $2 $3
   cd ..
-  mv ${TRACE}_${1}_${2} ptraces/${1}_${2}
-  
+  mv ${1}_${2}_${3} ptraces/${2}_${3}
 }
 
 keep_fct(){
   cp -r  ${1}_${2}_${3} reference/
 }
 
-TRACE=`ls *.prv`
+TRACE=`ls *clustered.prv`
 if [[ -d logs ]]
 then
   rm -fr logs
@@ -66,12 +71,12 @@ do
   for j in 0.0 0.1 0.2 0.3 0.4 0.5 0.7 0.8 0.9 1.0 2.0 3.0 4.0 5.0 7.0 8.0 9.0 10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 100.0
   do
   folding -region Cluster_1 -region Cluster_2 -pct $i $j $TRACE "Cluster ID" > logs/log_${i}_${j} 2>&1
-  if [ it -eq 0 ]
+  basename=${TRACE%.prv}
+  if [ $it -eq 0 ]
   then
-    keep_fct $TRACE $i $j
+    keep_fct $basename $i $j
   fi
-  clean_fct $TRACE $i $j
-  
+  clean_fct $basename $i $j
   it=$((it + 1))
   progress=$((100*it/tests))
   echo -en "Processing: $progress %    \r"
