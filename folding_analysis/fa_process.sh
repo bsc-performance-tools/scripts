@@ -50,9 +50,9 @@ filei=0
 for clusterdir in *
 do
   cd $clusterdir
-  outdir=$currentpath/$OUDIR/$clusterdir
+  outdir=$currentpath/$OUTDIR/$clusterdir
   mkdir -p $outdir
-  reference=`ls *_${REF_CSAMPLES}_${REF_MINPER}.csv`
+  reference=`ls ${REF_CSAMPLES}_${REF_MINPER}.csv`
   reflinenumber=`wc -l $reference | cut -f1 -d' '`
   functnumber_fct $reference
   reffunctnumber=$?
@@ -60,9 +60,9 @@ do
   echo "#CS, FMD, LOSS, LOSSPER, COMPLEX, COMPLEXPER" > $outdir/data.csv
   for file in *.csv
   do
-    temp=`basename $file .choped.csv`
-    csamples=`echo $temp | awk -F_ '{print $2}'`
-    minper=`echo $temp | awk -F_ '{print $3}'`
+    temp=`basename $file .csv`
+    csamples=`echo $temp | awk -F_ '{print $1}'`
+    minper=`echo $temp | awk -F_ '{print $2}'`
     diffnumber=`diff $reference $file | grep "<" | wc -l | cut -f1 -d' '`
     diffper=`bc<<<"scale=2;100.0*$diffnumber/$reflinenumber"`
     functnumber_fct $file

@@ -22,22 +22,23 @@ TRACES=ptraces
 if [[ -d $DIR ]]
 then
   rm -fr $DIR
-fi
+f
 mkdir -p $DIR
 filei=0
 for i in 1 2
   do
   clusterdir=$DIR/Cluster_$i
   mkdir -p $clusterdir
-  for dir in $TRACES
+  cd $TRACES
+  for dir in *
     do
     if [ -d "$dir" ]
       then
-      cp $dir/*codeblocks.fused.any.any.any.dump.csv $clusterdir/${dir}.dump
+      cp $dir/*codeblocks.fused.any.any.any.dump.csv ../$clusterdir/${dir}.dump
     fi
     done
-  cd $clusterdir
-  filenumber=`ls -Al *.csv | wc -l`
+  cd ../$clusterdir
+  filenumber=`ls -Al *.dump | wc -l`
   for csv in *dump
   do
     filtered=${csv%.dump}.filtered.csv

@@ -27,7 +27,8 @@ OUTDIR=selected
 
 if [[ -d $RSCRIPT ]]
 then
-else if [[ -d $RSPATH ]]
+echo "RSCRIPT valid"
+elif [[ -d $RSPATH ]]
 then
 RSCRIPT=$RSPATH
 else
@@ -41,12 +42,13 @@ then
 fi
 mkdir -p $OUTDIR
 cd $STATS
-for cluster in Cluster*
+for cluster in Cluster_*
 do
   cd $cluster
   R --vanilla < $RSCRIPT/$SCRIPTNAME
-  R --vanilla < $RSCRIPT/fa.R
-  mkdir -p $OUTDIR/$cluster
+  #R --vanilla < $RSCRIPT/fa.R
+  mkdir -p ../../$OUTDIR/$cluster
+  sed '1d' best_params.csv > temp
   while IFS='' read -r line || [[ -n "$line" ]]
   do
     p=`echo $line | awk -F"," '{print $1}'`
@@ -55,8 +57,14 @@ do
     FMD=`echo $line | awk -F"," '{print $4}'`
     LOSS=`echo $line | awk -F"," '{print $5}'`
     COMPLEX=`echo $line | awk -F"," '{print $6}'`
-    done < best_param.csv
-  cp best_param.csv ../../$OUTDIR
-  cp -r ../../$TRACES/${CS}_${FMD}/ $OUTDIR/COMPLEX_${COMPLEX}______p_$P
+    selectedtrace=../../$TRACES/${CS}_${FMD}
+    if [[ ! -d $selectedtrace ]]
+    then
+      selectedtrace=${selectedtrace}.0
+    fi
+    cp -r $selectedtrace/ ../../$OUTDIR/$cluster/${COMPLEX}
+    done < temp
+  rm temp
+  cp best_params.csv ../../$OUTDIR/$cluster/
   cd ..
 done

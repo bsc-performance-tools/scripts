@@ -23,7 +23,7 @@
 export_fct(){
   for plot in *.gnuplot
   do
-  sed -i "6i\set terminal png size 800,600;\nset output \\\"${plot}.png\\\";" $plot
+  sed -i "6i\set terminal png size 800,600;\nset output \\\"${1}_${2}.png\\\";" $plot
   gnuplot -p $plot
   done
 }
@@ -46,6 +46,7 @@ clean_fct(){
   export_fct $2 $3
   cd ..
   mv ${1}_${2}_${3} ptraces/${2}_${3}
+
 }
 
 keep_fct(){
@@ -63,6 +64,12 @@ then
   rm -fr ptraces
 fi
 mkdir -p ptraces
+if [[ -d reference ]]
+then
+  rm -fr reference
+fi
+mkdir -p reference
+
 
 tests=$((8*27))
 it=0
