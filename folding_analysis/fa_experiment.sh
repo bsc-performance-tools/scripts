@@ -29,28 +29,27 @@ export_fct(){
 }
 
 clean_fct(){
-  cd ${1}_${2}_${3}
+  cd ${1}
   if [[ "$?" != "0" ]]
   then
     exit 1
   fi
-  rm *.prv *.pcf *.row *.control *.counters *.dataobjects *.extract *.objects *.regions *.wxfolding *.bash
-  rm *.PAPI_BR_MSP.gnuplot
-  rm *.PAPI_FP_INS.gnuplot
-  rm *.PAPI_L1_DCM.gnuplot
-  rm *.PAPI_L2_DCM.gnuplot
-  rm *.PAPI_L3_TCM.gnuplot
-  rm *.PAPI_TOT_CYC.gnuplot
-  rm *.ratio_per_instruction.gnuplot
-  rm *.groups.gnuplot
+  rm -f *.prv *.pcf *.row *.control *.counters *.dataobjects *.extract *.objects *.regions *.wxfolding *.bash
+  rm -f *.PAPI_BR_MSP.gnuplot
+  rm -f *.PAPI_FP_INS.gnuplot
+  rm -f *.PAPI_L1_DCM.gnuplot
+  rm -f *.PAPI_L2_DCM.gnuplot
+  rm -f *.PAPI_L3_TCM.gnuplot
+  rm -f *.PAPI_TOT_CYC.gnuplot
+  rm -f *.ratio_per_instruction.gnuplot
+  rm -f *.groups.gnuplot
   export_fct $2 $3
   cd ..
-  mv ${1}_${2}_${3} ptraces/${2}_${3}
-
+  mv ${1} ptraces/${2}_${3}
 }
 
 keep_fct(){
-  cp -r  ${1}_${2}_${3} reference/
+  cp -r  ${1} reference/${2}_${3}
 }
 
 TRACE=`ls *clustered.prv`
@@ -77,7 +76,7 @@ for i in 2 3 4 5 10 20 50 100
 do
   for j in 0.0 0.1 0.2 0.3 0.4 0.5 0.7 0.8 0.9 1.0 2.0 3.0 4.0 5.0 7.0 8.0 9.0 10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 100.0
   do
-  folding -region Cluster_1 -region Cluster_2 -pct $i $j $TRACE "Cluster ID" > logs/log_${i}_${j} 2>&1
+  folding -counter PAPI_TOT_INS -region Cluster_1 -region Cluster_2 -pct $i $j $TRACE "Cluster ID" > logs/log_${i}_${j} 2>&1
   basename=${TRACE%.prv}
   if [ $it -eq 0 ]
   then
