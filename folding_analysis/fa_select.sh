@@ -55,14 +55,17 @@ do
     pIC=`echo $line | awk -F"," '{print $2}'`
     CS=`echo $line | awk -F"," '{print $3}'`
     FMD=`echo $line | awk -F"," '{print $4}'`
-    LOSS=`echo $line | awk -F"," '{print $5}'`
+    DIFF=`echo $line | awk -F"," '{print $5}'`
     COMPLEX=`echo $line | awk -F"," '{print $6}'`
+    COMPLEXRED=`echo $line | awk -F"," '{print $7}'`
     selectedtrace=../../$TRACES/${CS}_${FMD}
     if [[ ! -d $selectedtrace ]]
     then
       selectedtrace=${selectedtrace}.0
     fi
-    cp -r $selectedtrace/ ../../$OUTDIR/$cluster/${COMPLEX}
+    mkdir -p ../../$OUTDIR/$cluster/${COMPLEX}
+    cp -r $selectedtrace/*$cluster* ../../$OUTDIR/$cluster/${COMPLEX}
+    cp -r $selectedtrace/*csv ../../$OUTDIR/$cluster/${COMPLEX}
     done < temp
   rm temp
   cp best_params.csv ../../$OUTDIR/$cluster/

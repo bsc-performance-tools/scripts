@@ -22,7 +22,7 @@ TRACES=ptraces
 if [[ -d $DIR ]]
 then
   rm -fr $DIR
-f
+fi
 mkdir -p $DIR
 filei=0
 for i in 1 2
@@ -52,5 +52,4 @@ for i in 1 2
     echo -en "Processing: $doneper %\r"
   done
   cd ../..
-done
-  
+done 

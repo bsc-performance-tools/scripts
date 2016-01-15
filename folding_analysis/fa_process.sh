@@ -17,8 +17,8 @@
 #
 #Author: Damien Dosimont <damien[dot]dosimont[at]bsc.es
 
-REF_CSAMPLES=2
-REF_MINPER=0.0
+REF_CS=2
+REF_FMD=0.0
 DIR=pdata
 OUTDIR=stats
 
@@ -52,23 +52,24 @@ do
   cd $clusterdir
   outdir=$currentpath/$OUTDIR/$clusterdir
   mkdir -p $outdir
-  reference=`ls ${REF_CSAMPLES}_${REF_MINPER}.csv`
+  reference=`ls ${REF_CS}_${REF_FMD}.csv`
   reflinenumber=`wc -l $reference | cut -f1 -d' '`
   functnumber_fct $reference
   reffunctnumber=$?
-  echo "The model used as reference is: CSAMPLES=$REF_CSAMPLES MINPER=$REF_MINPER" > $outdir/reference
-  echo "#CS, FMD, LOSS, LOSSPER, COMPLEX, COMPLEXPER" > $outdir/data.csv
+  echo "The model used as reference is: CS=$REF_CS MINPER=$REF_FMD" > $outdir/reference
+  echo "#CS, FMD, DIFF, DIFFPER, COMPLEX, COMPLEXRED, COMPLEXREDPER" > $outdir/data.csv
   for file in *.csv
   do
     temp=`basename $file .csv`
-    csamples=`echo $temp | awk -F_ '{print $1}'`
+    cs=`echo $temp | awk -F_ '{print $1}'`
     minper=`echo $temp | awk -F_ '{print $2}'`
     diffnumber=`diff $reference $file | grep "<" | wc -l | cut -f1 -d' '`
     diffper=`bc<<<"scale=2;100.0*$diffnumber/$reflinenumber"`
     functnumber_fct $file
     functnumber=$?
-    funcper=`bc<<<"scale=2;100.0*$functnumber/$reffunctnumber"`
-    echo "$csamples,$minper,$diffnumber,$diffper,$functnumber,$funcper" >> $outdir/data.csv
+    complexityred=$((reffunctnumber-functnumber))
+    complexityredper=`bc<<<"scale=2;100.0*$complexityred/($reffunctnumber-1)"`
+    echo "$cs,$minper,$diffnumber,$diffper,$functnumber,$complexityred,$complexityredper" >> $outdir/data.csv
     filei=$((filei + 1))
     doneper=$((100 * filei / filenumber))
     echo -en "Processing: $doneper %\r"

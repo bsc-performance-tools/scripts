@@ -21,7 +21,21 @@
 
 export RSPATH=~/Git/github/bsc-performance-tools/scripts/folding_analysis
 
-fa_experiment.sh
+#echo "Computing RRI for different values of CS and FMD... This can take several hours or days..."
+#echo ""
+#fa_experiment.sh
+#echo "Done"
+#echo "---------------------------"
+echo "Extracting RRI data"
 fa_extract.sh
+echo ""
+echo "Done"
+echo "---------------------------"
+echo "Processing RRI data"
 fa_process.sh
-fa_select.sh
+echo ""
+echo "Done"
+echo "---------------------------"
+echo "Searching for best RRI graphs"
+fa_select.sh >/dev/null
+echo "Done"
