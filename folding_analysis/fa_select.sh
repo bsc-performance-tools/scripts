@@ -46,7 +46,7 @@ for cluster in Cluster_*
 do
   cd $cluster
   R --vanilla < $RSCRIPT/$SCRIPTNAME
-  #R --vanilla < $RSCRIPT/fa.R
+  R --vanilla < $RSCRIPT/fa.R
   mkdir -p ../../$OUTDIR/$cluster
   sed '1d' best_params.csv > temp
   while IFS='' read -r line || [[ -n "$line" ]]
@@ -68,6 +68,7 @@ do
     cp -r $selectedtrace/*csv ../../$OUTDIR/$cluster/${COMPLEX}
     done < temp
   rm temp
-  cp best_params.csv ../../$OUTDIR/$cluster/
+  mv best_params.csv ../../$OUTDIR/$cluster/
+  mv measures*.pdf ../../$OUTDIR/$cluster/
   cd ..
 done

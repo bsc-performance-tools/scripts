@@ -68,7 +68,7 @@ do
     functnumber_fct $file
     complexity=$?
     complexityper=`bc<<<"scale=2;100.0*$complexity/$reffunctnumber"`
-    complexityred=$((reffunctnumber-functnumber))
+    complexityred=$((reffunctnumber-complexity))
     complexityredper=`bc<<<"scale=2;100.0*$complexityred/($reffunctnumber-1)"`
     echo "$cs,$minper,$diffnumber,$diffper,$complexity,$complexityper,$complexityred,$complexityredper" >> $outdir/data.csv
     filei=$((filei + 1))
