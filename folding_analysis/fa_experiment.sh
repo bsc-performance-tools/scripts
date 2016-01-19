@@ -23,7 +23,7 @@
 export_fct(){
   for plot in *.gnuplot
   do
-  sed -i "6i\set terminal png size 800,600;\nset output \\\"${plot}.png\\\";" $plot
+  sed -i "6i\set terminal png size 800,300;\nset output \\\"${plot}.png\\\";" $plot
   gnuplot -p $plot
   done
 }

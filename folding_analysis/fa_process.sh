@@ -57,7 +57,7 @@ do
   functnumber_fct $reference
   reffunctnumber=$?
   echo "The model used as reference is: CS=$REF_CS MINPER=$REF_FMD" > $outdir/reference
-  echo "#CS, FMD, DIFF, DIFFPER, COMPLEX, COMPLEXRED, COMPLEXREDPER" > $outdir/data.csv
+  echo "#CS, FMD, DIFF, DIFFPER, COMPLEX, COMPLEXPER, COMPLEXRED, COMPLEXREDPER" > $outdir/data.csv
   for file in *.csv
   do
     temp=`basename $file .csv`
@@ -66,10 +66,11 @@ do
     diffnumber=`diff $reference $file | grep "<" | wc -l | cut -f1 -d' '`
     diffper=`bc<<<"scale=2;100.0*$diffnumber/$reflinenumber"`
     functnumber_fct $file
-    functnumber=$?
+    complexity=$?
+    complexityper=`bc<<<"scale=2;100.0*$complexity/$reffunctnumber"`
     complexityred=$((reffunctnumber-functnumber))
     complexityredper=`bc<<<"scale=2;100.0*$complexityred/($reffunctnumber-1)"`
-    echo "$cs,$minper,$diffnumber,$diffper,$functnumber,$complexityred,$complexityredper" >> $outdir/data.csv
+    echo "$cs,$minper,$diffnumber,$diffper,$complexity,$complexityper,$complexityred,$complexityredper" >> $outdir/data.csv
     filei=$((filei + 1))
     doneper=$((100 * filei / filenumber))
     echo -en "Processing: $doneper %\r"

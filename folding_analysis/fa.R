@@ -16,7 +16,7 @@ output5_1 <- "difference_gradient.pdf"
 output5_2 <- "complexity_gradient.pdf"
 output6 <- "score_gradient.pdf"
 
-cheader <- c("CSAMPLES", "MINPER", "DIFFNUMBER", "DIFFPER", "FUNCTNUMBER", "FUNCTPER")
+cheader <- c("CSAMPLES", "MINPER", "DIFFNUMBER", "DIFFPER", "FUNCTNUMBER", "FUNCTPER", "COMPLEXRED", "COMPLEXREDPER")
 
 legendcs <- "Consecutive samples"
 legendmp <- "Function minimal duration"
