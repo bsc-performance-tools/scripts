@@ -3,8 +3,8 @@
 SCRIPT_PATH=`readlink -f $0`
 FOLDING_HOME=`dirname ${SCRIPT_PATH}`
 
-PCT1=15
-PCT2=5
+CS=15
+FMD=5
 MSDF=1500
 ST=1.5
 
@@ -73,14 +73,26 @@ do
 		SOURCE_DIRECTORY_SUFFIX="-source `readlink -fn ${2}`"
 		shift
 		shift
+	elif [[ "${1}" == "-counter" ]] ; then
+		REQUESTED_COUNTERS_TO_FOLD+=" -counter ${2}"
+		shift
+		shift
 	elif [[ "${1}" == "-region" ]] ; then
 		REQUESTED_REGIONS_TO_FOLD+=" -region ${2}"
 		shift
 		shift
-	elif [[ "${1}" == "-pct" ]] ; then
-		PCT1=${2}
+	elif [[ "${1}" == "-extract-from" ]] ; then
+		EXTRACT_ADDITIONAL_PARAMETERS+=" -extract-from ${2}"
 		shift
-                PCT2=${2}
+		shift
+	elif [[ "${1}" == "-extract-to" ]] ; then
+		EXTRACT_ADDITIONAL_PARAMETERS+=" -extract-to ${2}"
+		shift
+		shift
+	elif [[ "${1}" == "-pct" ]] ; then
+		CS=${2}
+		shift
+                FMD=${2}
 		shift
                 shift
 	elif [[ "${1}" == "-show-commands" ]] ; then
@@ -107,7 +119,7 @@ done
 #
 
 if [[ $# -ne 2 ]] ; then
-	echo "Usage: ${0} [-output <dir>] [-model M] [-source S] [-region R] [-pct S P] Trace InstanceSeparator/SemanticSeparator"
+	echo "Usage: ${0} [-output <dir>] [-model M] [-source S] [-region R] [-pct CS FMD] Trace InstanceSeparator/SemanticSeparator"
 	echo ""
 	echo "            -model M         : Uses performance model M when generating plots"
 	echo "                               Available models in $FOLDING_HOME/etc/models:"
@@ -123,8 +135,7 @@ if [[ $# -ne 2 ]] ; then
 	echo "            -source S        : Indicates where the source code of the application is located"
 	echo "            -region R        : Requests to apply the folding to region R"
 	echo "            -output <dir>    : Where to generate the results (if not given, they are generated in the tracefile <dir>)"
-        echo "            -pct S P         : Callstack processor: number of consecutive samples S to consider a function to show in the results, minimum duration in percentage P to enable the display of a function"
-
+        echo "            -pct CS FMD         : Callstack processor parameters: number of consecutive samples CS, minimum duration (in percentage) FMD"
 	echo "            Trace            : Paraver trace-file"
 	echo "            InstanceSeparator: Label or value of the event type to separate instances within tracefile"
 	echo "            SemanticSeparator: .csv file generated from Paraver to separate instances within tracefile"
@@ -183,14 +194,16 @@ if [[ -z ${REQUESTED_REGIONS_TO_FOLD+x} ]] ; then
 		fi
 	fi
 else
-	EXTRA_INTERPOLATE_FLAGS=${REQUESTED_REGIONS_TO_FOLD}
+	EXTRA_INTERPOLATE_FLAGS="${REQUESTED_REGIONS_TO_FOLD}"
 fi
+
+EXTRA_INTERPOLATE_FLAGS+="${REQUESTED_COUNTERS_TO_FOLD}"
 
 # BASENAME_PRV="${1%.*}"
 BASENAME_PRV=${PRVBASE}
 
-mkdir -p ${OUTPUTDIR}/${BASENAME_PRV}_${PCT1}_${PCT2} || exit
-cd ${OUTPUTDIR}/${BASENAME_PRV}_${PCT1}_${PCT2} || exit
+mkdir -p ${OUTPUTDIR}/${BASENAME_PRV} || exit
+cd ${OUTPUTDIR}/${BASENAME_PRV} || exit
 
 if [[ "${SHOW_COMMANDS}" = "yes" ]] ; then
 	echo Executing: ${FOLDING_HOME}/bin/codeblocks ${SOURCE_DIRECTORY_SUFFIX} \"${PRVDIR}/${BASENAME_PRV}.prv\"
@@ -204,32 +217,30 @@ ${FOLDING_HOME}/bin/fuse "${BASENAME_PRV}.codeblocks.prv" || exit
 
 if [[ "${BASENAME_CSV}" = "" ]] ; then
 	if [[ "${SHOW_COMMANDS}" = "yes" ]] ; then
-		echo ${FOLDING_HOME}/bin/extract -separator \"${2}\" \"${BASENAME_PRV}.codeblocks.fused.prv\"
+		echo ${FOLDING_HOME}/bin/extract ${EXTRACT_ADDITIONAL_PARAMETERS} -separator \"${2}\" \"${BASENAME_PRV}.codeblocks.fused.prv\"
 	fi
-	${FOLDING_HOME}/bin/extract -separator "${2}" "${BASENAME_PRV}.codeblocks.fused.prv" || exit
+	${FOLDING_HOME}/bin/extract ${EXTRACT_ADDITIONAL_PARAMETERS} -separator "${2}" "${BASENAME_PRV}.codeblocks.fused.prv" || exit
 	EXTRA_INTERPOLATE_FLAGS+=" -feed-first-occurrence any"
 else
 	if [[ "${SHOW_COMMANDS}" = "yes" ]] ; then
-		echo ${FOLDING_HOME}/bin/extract -semantic \"${BASENAME_CSV}.csv\" \"${BASENAME_PRV}.codeblocks.fused.prv\"
+		echo ${FOLDING_HOME}/bin/extract ${EXTRACT_ADDITIONAL_PARAMETERS} -semantic \"${BASENAME_CSV}.csv\" \"${BASENAME_PRV}.codeblocks.fused.prv\"
 	fi
-	${FOLDING_HOME}/bin/extract -semantic "${BASENAME_CSV}.csv" "${BASENAME_PRV}.codeblocks.fused.prv" || exit
+	${FOLDING_HOME}/bin/extract ${EXTRACT_ADDITIONAL_PARAMETERS} -semantic "${BASENAME_CSV}.csv" "${BASENAME_PRV}.codeblocks.fused.prv" || exit
 fi
 
 if [[ "${SHOW_COMMANDS}" = "yes" ]] ; then
-	echo ${FOLDING_HOME}/bin/interpolate -max-samples-distance $MSDF -sigma-times $ST -callstack-processor pct $PCT1 $PCT2 -use-median ${EXTRA_INTERPOLATE_FLAGS} ${MODELS_SUFFIX} ${SOURCE_DIRECTORY_SUFFIX} "${BASENAME_PRV}.codeblocks.fused.extract"
+	echo ${FOLDING_HOME}/bin/interpolate -max-samples-distance $MSDF -sigma-times $ST -callstack-processor pct $CS $FMD -use-median ${EXTRA_INTERPOLATE_FLAGS} ${MODELS_SUFFIX} ${SOURCE_DIRECTORY_SUFFIX} "${BASENAME_PRV}.codeblocks.fused.extract"
 fi
 
 # Hook for Paraver
 echo Output directory: ${PWD}
 
-# Callstack-processor: number of consecutive samples to consider a function to show in the results, minimum duration (pc) to enable the display of a function
-
-
+# Callstack-processor
 ${FOLDING_HOME}/bin/interpolate \
  -max-samples-distance-fast $MSDF \
  -sigma-times $ST \
  -use-median \
- -callstack-processor pct $PCT1 $PCT2 \
+ -callstack-processor pct $CS $FMD \
  ${EXTRA_INTERPOLATE_FLAGS} \
  ${MODELS_SUFFIX} \
  ${SOURCE_DIRECTORY_SUFFIX} \

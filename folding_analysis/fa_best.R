@@ -44,11 +44,14 @@ measures1<-function(data){
 dtemp<-data
 xlabel<- "Parameter p"
 ylabel<- "Amplitude (normalized)"
+dtemp$LABELX=paste(dtemp$CS,dtemp$FMD,sep=":")
+dtemp$LABELY<- with(dtemp, pmax(DIFFPER, COMPLEXREDPER))
 plot<-ggplot(dtemp, aes(p))
 plot<-plot+geom_line(aes(y=DIFFPER), color="red")
 plot<-plot+geom_line(aes(y=COMPLEXREDPER), color="green")
 plot<-plot+geom_point(aes(y=DIFFPER), color="red")
 plot<-plot+geom_point(aes(y=COMPLEXREDPER), color="green")
+plot<-plot + geom_text(aes(label=LABELX,y=LABELY),hjust=0, vjust=-1)
 plot<-plot + theme_bw()
 plot<-plot + labs(x=xlabel,y=ylabel,legend=legend)
 plot
@@ -62,7 +65,7 @@ ylabel<- "Difference"
 plot<-ggplot(dtemp, aes(x=COMPLEX, y=DIFFPER))
 plot<-plot + geom_point()
 plot<-plot + geom_line()
-plot<-plot + geom_text(aes(label=LABEL),hjust=0, vjust=-5)
+plot<-plot + geom_text(aes(label=LABEL),hjust=0, vjust=-1)
 plot<-plot + theme_bw()
 plot<-plot + labs(x=xlabel,y=ylabel,legend=legend)
 plot
