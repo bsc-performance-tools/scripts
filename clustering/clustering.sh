@@ -21,43 +21,73 @@
 
 
 PREFIX=
-SUFFIX=chop1
+SUFFIX=
 CLUSTER=cluster.xml
 
 clustering_fct(){
+if [ ! -f $TRACE ]
+then
+  APP=`ls $PREFIX*$SUFFIX.prv`
+  APP=${APP%.prv}
+else
+  APP=${TRACE%.prv}
+fi
   BurstClustering -a -d $CLUSTER -i ${APP}.prv -o ${APP}.clustered.prv
   #sed -i '/pause/d' ${APP}.clustered.IPC.PAPI_TOT_INS.gnuplot
   gnuplot -p ${APP}.clustered.IPC.PAPI_TOT_INS.gnuplot
 }
 
 extract_fct(){
+if [ ! -f $TRACE ]
+then
+  APP=`ls $PREFIX*$SUFFIX.prv`
+  APP=${APP%.prv}
+else
+  APP=${TRACE%.prv}
+fi
   ClusteringDataExtractor -d $CLUSTER -i ${APP}.prv
   #sed -i '/pause/d' ${APP}.IPC.PAPI_TOT_INS.gnuplot
   gnuplot -p ${APP}.IPC.PAPI_TOT_INS.gnuplot
 }
 
 stat_fct (){
+if [ ! -f $TRACE ]
+then
+  APP=`ls $PREFIX*$SUFFIX.prv`
+  APP=${APP%.prv}
+else
+  APP=${TRACE%.prv}
+fi
   stats ${APP}.prv -bursts_histo
   #sed -i '/pause/d' ${APP}.bursts.gnuplot
   gnuplot -p ${APP}.bursts.gnuplot
 }
 
-APP=`ls $PREFIX*$SUFFIX.prv`
-APP=${APP%.prv}
+init_fct (){
+  xml=/usr/local/share/example/cluster.xml
+  cp $xml .
+}
+
 
 PARAM=$1
+TRACE=$2
 
 if [ "$PARAM" -eq 1 ]
 then
-  stat_fct  
+  init_fct  
 fi
 
 if [ "$PARAM" -eq 2 ]
 then
-  extract_fct  
+  stat_fct  
 fi
 
 if [ "$PARAM" -eq 3 ]
+then
+  extract_fct  
+fi
+
+if [ "$PARAM" -eq 4 ]
 then
   clustering_fct  
 fi

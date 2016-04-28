@@ -33,6 +33,7 @@ then
 RSCRIPT=$RSPATH
 else
 echo "Set the environment variable RSPATH to the directory that contains ${SCRIPTNAME} and run this script again. Leaving..."
+exit 1
 fi
 
 
@@ -63,9 +64,10 @@ do
     then
       selectedtrace=${selectedtrace}.0
     fi
-    mkdir -p ../../$OUTDIR/$cluster/${COMPLEX}
-    cp -r $selectedtrace/*$cluster* ../../$OUTDIR/$cluster/${COMPLEX}
-    cp -r $selectedtrace/*csv ../../$OUTDIR/$cluster/${COMPLEX}
+    SELECTED=${COMPLEX}_${CS}-${FMD}
+    mkdir -p ../../$OUTDIR/$cluster/${SELECTED}
+    cp -r $selectedtrace/*$cluster* ../../$OUTDIR/$cluster/${SELECTED}
+    cp -r $selectedtrace/*csv ../../$OUTDIR/$cluster/${SELECTED}
     done < temp
   rm temp
   mv best_params.csv ../../$OUTDIR/$cluster/
